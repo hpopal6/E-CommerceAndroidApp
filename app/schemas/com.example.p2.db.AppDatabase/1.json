@@ -1,0 +1,58 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "367741b8fc7c749ca0c1f3e67e94c1c3",
+    "entities": [
+      {
+        "tableName": "INVENTORYLOG_TABLE",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mLogID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mTitle` TEXT, `mPrice` REAL NOT NULL, `mQuantity` INTEGER NOT NULL, `mDate` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "mLogID",
+            "columnName": "mLogID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mTitle",
+            "columnName": "mTitle",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mPrice",
+            "columnName": "mPrice",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mQuantity",
+            "columnName": "mQuantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mDate",
+            "columnName": "mDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "mLogID"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '367741b8fc7c749ca0c1f3e67e94c1c3')"
+    ]
+  }
+}

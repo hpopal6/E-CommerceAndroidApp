@@ -1,0 +1,59 @@
+/**
+ * @title CST 338 Project 02: Part 02 Login and Landing Page
+ * @author Harris Popal
+ * @date 12/6/2023
+ * @abstract This is the DAO (Data Access Object) for Inventory Log
+ */
+package com.example.p2.db;
+
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.Query;
+import androidx.room.Update;
+
+import com.example.p2.InventoryLog;
+import com.example.p2.User;
+
+import org.checkerframework.checker.formatter.qual.InvalidFormat;
+
+import java.util.List;
+
+@Dao
+public interface InventoryLogDAO {
+
+    @Insert
+    void insert(InventoryLog... inventoryLogs);
+
+    @Update
+    void update(InventoryLog... inventoryLogs);
+
+    @Delete
+    void delete(InventoryLog inventoryLog);
+
+    @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " ORDER BY mDate DESC")
+    List<InventoryLog> getAllInventoryLogs();
+    @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " WHERE mLogID = :logId")
+    List<InventoryLog> getInventoryLogsById(int logId);
+
+    @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " WHERE mUserID = :userId ORDER BY mDate DESC")
+    List<InventoryLog> getInventoryLogsByUserId(int userId);
+
+    @Insert
+    void insert(User...users);
+
+    @Update
+    void update(User...users);
+
+    @Delete
+    void delete(User user);
+
+    @Query("SELECT * FROM " + AppDatabase.USER_TABLE)
+    List<User> getAllUsers();
+
+    @Query("SELECT * FROM " + AppDatabase.USER_TABLE + " WHERE mUserName = :username")
+    User getUserByUsername(String username);
+
+    @Query("SELECT * FROM " + AppDatabase.USER_TABLE + " WHERE mUserId = :userId")
+    User getUserByUserId(int userId);
+}

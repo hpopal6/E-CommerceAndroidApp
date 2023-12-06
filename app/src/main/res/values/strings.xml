@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Menu</string>
+    <string name="mainTitleHint">Enter Title</string>
+    <string name="mainPriceHint">Enter Price</string>
+    <string name="mainQuantityHint">Enter Quantity</string>
+    <string name="mainSubmitButton">Submit</string>
+    <string name="noLogsMessage">No records, time to set up an inventory</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="file">File</string>
+    <string name="create_new">Create New</string>
+    <string name="open">Open</string>
+    <string name="adminMessage">You are an Admin</string>
+    <string name="user">USER</string>
+    <string name="special_shiny_admin_button">Special Shiny Admin Button</string>
+    <string name="you_are_a_special_admin">You are a special admin</string>
+    <string name="create_account">Create Account</string>
+</resources>
