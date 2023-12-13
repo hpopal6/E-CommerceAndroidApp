@@ -231,7 +231,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshDisplay(){
-        mInventoryLogs = mInventoryLogDAO.getInventoryLogsById(mUserId);
+        //mInventoryLogs = mInventoryLogDAO.getInventoryLogsById(mUserId);
+        mInventoryLogs = mInventoryLogDAO.getInventoryLogsByUserId(mUserId);
+
 
         if(mInventoryLogs.size() <= 0){
             mMainDisplay.setText(R.string.noLogsMessage);
