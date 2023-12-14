@@ -34,7 +34,6 @@ public class LoginActivity extends AppCompatActivity {
         wireupDisplay();
 
         getDatabase();
-
     }
 
     private void wireupDisplay(){
@@ -52,7 +51,8 @@ public class LoginActivity extends AppCompatActivity {
                     if (!validatePassword()) {
                         Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
                     } else {
-                        Intent intent = MainActivity.intentFactory(getApplicationContext(), mUser.getUserId());
+                        Toast.makeText(LoginActivity.this, "Got here", Toast.LENGTH_SHORT).show();
+                        Intent intent = WelcomeActivity.intentFactory(getApplicationContext(), mUser.getUserId());
                         startActivity(intent);
                     }
                 };
@@ -94,7 +94,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public static Intent intentFactory(Context context){
         Intent intent = new Intent(context, LoginActivity.class);
-
         return intent;
     }
 }

@@ -127,24 +127,6 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu){
-        if(mUser != null){
-            MenuItem item = menu.findItem(R.id.userMenuLogout);
-            item.setTitle(mUser.getUserName());
-
-            mOptionsMenu = menu;
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    private void getDatabase() {
-        mInventoryLogDAO = Room.databaseBuilder(this, AppDatabase.class, AppDatabase.DB_NAME)
-                .allowMainThreadQueries()
-                .build()
-                .getInventoryLogDAO();
-    }
-
     private void checkForUser() {
         //do we have a user in the intent?
         mUserId = getIntent().getIntExtra(USER_ID_KEY, -1);
@@ -172,34 +154,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = LoginActivity.intentFactory(this);
         startActivity(intent);
     }
-
     private void getPrefs() {
         mPreferences = this.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
     }
-    private void logoutUser(){
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-
-        alertBuilder.setMessage(R.string.logout);
-        alertBuilder.setPositiveButton(getString(R.string.yes),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        clearUserFromIntent();
-                        clearUserFromPref();
-                        mUserId = -1;
-                        checkForUser();
-                    }
-                });
-        alertBuilder.setNegativeButton(getString(R.string.no),
-                new DialogInterface.OnClickListener(){
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Don't need anything here.
-                    }
-                });
-        alertBuilder.create().show();
-    }
-
     private void clearUserFromIntent() {
         getIntent().putExtra(USER_ID_KEY, -1);
     }
@@ -254,7 +211,39 @@ public class MainActivity extends AppCompatActivity {
         }
         mMainDisplay.setText(sb.toString());
     }
+    private void logoutUser(){
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
+        alertBuilder.setMessage(R.string.logout);
+        alertBuilder.setPositiveButton(getString(R.string.yes),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        clearUserFromIntent();
+                        clearUserFromPref();
+                        mUserId = -1;
+                        checkForUser();
+                    }
+                });
+        alertBuilder.setNegativeButton(getString(R.string.no),
+                new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Don't need anything here.
+                    }
+                });
+        alertBuilder.create().show();
+    }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        if(mUser != null){
+            MenuItem item = menu.findItem(R.id.userMenuLogout);
+            item.setTitle(mUser.getUserName());
+
+            mOptionsMenu = menu;
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
@@ -270,7 +259,12 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
+    }
+    private void getDatabase() {
+        mInventoryLogDAO = Room.databaseBuilder(this, AppDatabase.class, AppDatabase.DB_NAME)
+                .allowMainThreadQueries()
+                .build()
+                .getInventoryLogDAO();
     }
     public static Intent intentFactory(Context context, int userId){
         Intent intent = new Intent(context, MainActivity.class);
