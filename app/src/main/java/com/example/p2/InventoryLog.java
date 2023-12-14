@@ -8,7 +8,8 @@ import com.example.p2.db.AppDatabase;
 import java.util.Date;
 @Entity(tableName = AppDatabase.INVENTORYLOG_TABLE)
 public class InventoryLog {
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = true)    //database automatically supply key
+                                        // value when inserting into database
     private int mLogID;
     private String mTitle;
     private double mPrice;
@@ -84,6 +85,8 @@ public class InventoryLog {
         output += getDate();
         output += "\n";
         output += "userId == " + mUserId;
+
+        //include mLogId???
 
         return output;
     }

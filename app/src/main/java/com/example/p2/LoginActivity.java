@@ -19,7 +19,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mUsernameField;
     private EditText mPasswordField;
 
-    private Button mButton;
+    private Button mLoginButton;
+    private Button mCreateAccountButton;
     private InventoryLogDAO mInventoryLogDAO;
     private String mUsername;
     private String mPassword;
@@ -40,8 +41,10 @@ public class LoginActivity extends AppCompatActivity {
         mUsernameField = findViewById(R.id.editTextLoginUserName);
         mPasswordField = findViewById(R.id.editTextLoginPassword);
 
-        mButton = findViewById(R.id.buttonLogin);
-        mButton.setOnClickListener(new View.OnClickListener() {
+        mLoginButton = findViewById(R.id.buttonLogin);
+        mCreateAccountButton = findViewById(R.id.buttonCreateAccount);
+
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getValuesFromDisplay();
@@ -53,6 +56,16 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 };
+            }
+        });
+
+        mCreateAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //User mNewUser = new User("user3", "user3");
+                //mInventoryLogDAO.insert(mNewUser);
+                Intent intent = CreateAccountActivity.intentFactory(getApplicationContext());
+                startActivity(intent);
             }
         });
 
@@ -77,7 +90,6 @@ public class LoginActivity extends AppCompatActivity {
                 .allowMainThreadQueries()
                 .build()
                 .getInventoryLogDAO();
-
     }
 
     public static Intent intentFactory(Context context){

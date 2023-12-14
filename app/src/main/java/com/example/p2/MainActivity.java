@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.p2.databinding.ActivityMainBinding;
 import com.example.p2.db.AppDatabase;
 import com.example.p2.db.InventoryLogDAO;
 
@@ -28,6 +29,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private static final String USER_ID_KEY = "com.example.p2.userIdKey";
     private static final String PREFERENCES_KEY = "com.example.p2.PREFERENCES_KEY";
+
+    ActivityMainBinding binding;
+
     private TextView mMainDisplay;
     private TextView mDebug;
     private EditText mTitle;
@@ -43,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<InventoryLog> mInventoryLogs;
 
-    private int mUserId = -1;
+    private int mUserId = -1;       // -1 if no user yet defined
     private SharedPreferences mPreferences = null;
     private User mUser;
     private Menu mOptionsMenu;
@@ -52,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //binding = ActivityMainBinding.inflate(getLayoutInflater());
+        //setContentView(binding.getRoot());
 
         getDatabase();
         checkForUser();
@@ -231,7 +238,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshDisplay(){
-        //mInventoryLogs = mInventoryLogDAO.getInventoryLogsById(mUserId);
         mInventoryLogs = mInventoryLogDAO.getInventoryLogsByUserId(mUserId);
 
 

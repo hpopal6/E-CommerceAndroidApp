@@ -19,4 +19,6 @@
     <string name="special_shiny_admin_button">Special Shiny Admin Button</string>
     <string name="you_are_a_special_admin">You are a special admin</string>
     <string name="create_account">Create Account</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_password">Confirm Password</string>
 </resources>
