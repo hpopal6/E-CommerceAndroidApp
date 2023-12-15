@@ -21,4 +21,12 @@
     <string name="create_account">Create Account</string>
     <string name="cancel">Cancel</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="welcome">Welcome</string>
+    <string name="buy">Buy:</string>
+    <string name="search">Search</string>
+    <string name="orders">Orders</string>
+    <string name="sell">Sell:</string>
+    <string name="post">Post</string>
+    <string name="inventory">Inventory</string>
+    <string name="admin">Admin</string>
 </resources>
