@@ -51,7 +51,6 @@ public class LoginActivity extends AppCompatActivity {
                     if (!validatePassword()) {
                         Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(LoginActivity.this, "Got here", Toast.LENGTH_SHORT).show();
                         Intent intent = WelcomeActivity.intentFactory(getApplicationContext(), mUser.getUserId());
                         startActivity(intent);
                     }

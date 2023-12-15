@@ -3,6 +3,8 @@ package com.example.p2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.content.Context;
@@ -18,101 +20,74 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.p2.databinding.ActivityMainBinding;
 import com.example.p2.db.AppDatabase;
 import com.example.p2.db.InventoryLogDAO;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class ManageAccountsActivity extends AppCompatActivity implements RecyclerViewInterface{
     private static final String USER_ID_KEY = "com.example.p2.userIdKey";
     private static final String PREFERENCES_KEY = "com.example.p2.PREFERENCES_KEY";
 
     ActivityMainBinding binding;
 
-    private TextView mMainDisplay;
-    private TextView mDebug;
-    private EditText mTitle;
-    private EditText mPrice;
-    private EditText mQuantity;
-    private TextView mAdmin;
-    private TextView mAdminSecretMessage;
-    private Button mAdminButton;
-    private Button mExitPostButton;
-
-    private Button mSubmitButton;
+    private Button mExitManageAccountsButton;
 
     private InventoryLogDAO mInventoryLogDAO;
-    private List<InventoryLog> mInventoryLogs;
 
     private int mUserId = -1;       // -1 if no user yet defined
     private SharedPreferences mPreferences = null;
     private User mUser;
-    private List<User> userList;
+    private List<User> userList = new ArrayList<>();
+    User_RecyclerViewAdapter adapter;
     private Menu mOptionsMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_manage_accounts);
 
-        //binding = ActivityMainBinding.inflate(getLayoutInflater());
-        //setContentView(binding.getRoot());
+        mExitManageAccountsButton = findViewById(R.id.buttonExitManageAccounts);
 
         getDatabase();
         checkForUser();
         loginUser(mUserId);
 
-        //debug();
+        RecyclerView recyclerView = findViewById(R.id.RecyclerViewAccounts);
+        setUpUsers();
 
-        mMainDisplay = findViewById(R.id.mainInventoryLogDisplay);
-        mMainDisplay.setMovementMethod(new ScrollingMovementMethod());
+        User_RecyclerViewAdapter adapter = new User_RecyclerViewAdapter(this,
+                userList, this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mTitle = findViewById(R.id.mainTitleEditText);
-        mPrice = findViewById(R.id.mainPriceEditText);
-        mQuantity = findViewById(R.id.mainQuantityEditText);
-        mAdminSecretMessage = findViewById(R.id.textView_admin_secret);
-
-        mAdminButton = findViewById(R.id.mainAdminButton);
-        mSubmitButton = findViewById(R.id.mainSubmitButton);
-        mExitPostButton = findViewById(R.id.mainExitPostButton);
-
-        refreshDisplay();
-
-        mSubmitButton.setOnClickListener(new View.OnClickListener() {
+        mExitManageAccountsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InventoryLog log = getValuesFromDisplay();
-                //log.setUserId(mUser.getUserId());
-
-                mInventoryLogDAO.insert(log);
-
-                refreshDisplay();
-            }
-        });
-
-        mExitPostButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = WelcomeActivity.intentFactory(getApplicationContext(), mUser.getUserId());
+                Intent intent = AdminActivity.intentFactory(getApplicationContext(), mUser.getUserId());
                 startActivity(intent);
             }
         });
 
-        if(mUser != null && mUser.isAdmin()){
-            mAdminButton.setVisibility(View.VISIBLE);
-        } else{
-            mAdminButton.setVisibility(View.GONE);
-        }
 
-        mAdminButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAdminSecretMessage.setVisibility(View.VISIBLE);
+    }
+
+    private void setUpUsers() {
+        userList = mInventoryLogDAO.getAllUsers();
+
+        // Remove the admin users (can't remove admins)
+        /*for(int i = 0; i<userList.size(); i++) {
+            if(userList.get(i).isAdmin()) {
+                userList.remove(i);
             }
-        });
+        }*/
+        //int[] userImages = {R.drawable.baseline_android_24};
     }
 
     /*private void debug(){
@@ -179,45 +154,6 @@ public class MainActivity extends AppCompatActivity {
         editor.putInt(USER_ID_KEY, userId);
         editor.apply();
     }
-    private InventoryLog getValuesFromDisplay(){
-        String title = "No record found";
-        double price = 0.0;
-        int quantity = 0;
-
-        title = mTitle.getText().toString();
-        try{
-            price = Double.parseDouble(mPrice.getText().toString());
-        } catch(NumberFormatException e){
-            Log.d("GYMLOG", "Couldn't convert price");
-        }
-
-        try{
-            quantity = Integer.parseInt(mQuantity.getText().toString());
-        } catch(NumberFormatException e){
-            Log.d("GYMLOG", "Couldn't convert quantity");
-        }
-
-        return new InventoryLog(title, price, quantity, mUserId);
-
-    }
-
-    private void refreshDisplay(){
-        mInventoryLogs = mInventoryLogDAO.getInventoryLogsByUserId(mUserId);
-
-
-        if(mInventoryLogs.size() <= 0){
-            mMainDisplay.setText(R.string.noLogsMessage);
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for(InventoryLog log : mInventoryLogs){
-            sb.append(log);
-            sb.append("\n");
-            sb.append("=-=-=-=-=-=-=-=-=-=-=");
-            sb.append("\n");
-        }
-        mMainDisplay.setText(sb.toString());
-    }
     private void logoutUser(){
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
@@ -274,9 +210,27 @@ public class MainActivity extends AppCompatActivity {
                 .getInventoryLogDAO();
     }
     public static Intent intentFactory(Context context, int userId){
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, ManageAccountsActivity.class);
         intent.putExtra(USER_ID_KEY, userId);
         return intent;
     }
 
+    @Override
+    public void onItemClick(int position) {
+        Toast.makeText(ManageAccountsActivity.this, "Account: " + userList.get(position).getUserName() + " deleted", Toast.LENGTH_SHORT).show();
+
+        mInventoryLogDAO.delete(userList.get(position));
+        userList.remove(position);
+        adapter.notifyItemRemoved(position);
+
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        //userList.remove(position);
+        Toast.makeText(ManageAccountsActivity.this, "Account: " + userList.get(position).getUserName() + " deleted", Toast.LENGTH_SHORT).show();
+
+        mInventoryLogDAO.delete(userList.get(position));
+        adapter.notifyItemRemoved(position);
+    }
 }
