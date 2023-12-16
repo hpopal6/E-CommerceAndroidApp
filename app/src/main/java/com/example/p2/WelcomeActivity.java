@@ -66,7 +66,8 @@ public class WelcomeActivity extends AppCompatActivity {
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+                Intent intent = SearchActivity.intentFactory(getApplicationContext(), mUser.getUserId());
+                startActivity(intent);
             }
         });
 

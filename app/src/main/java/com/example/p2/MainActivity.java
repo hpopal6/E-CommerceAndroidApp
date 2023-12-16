@@ -91,12 +91,15 @@ public class MainActivity extends AppCompatActivity {
 
                 mInventoryLogDAO.insert(log);
 
+                mUser.getUserName();
+
                 Item newItem = new Item(log.getTitle(), log.getQuantity(), log.getUserId());
-                mItems = mInventoryLogDAO.getItemsByUserId(mUserId);
+                mItems = mInventoryLogDAO.getAllItems();
                 boolean titlesMatch = false;
                 for(Item item : mItems){
                     if(item.getTitle().equals(log.getTitle())) {
                         item.setQuantity(item.getQuantity() + log.getQuantity());
+                        //item.setUserList(item.getUserList().put(Integer.valueOf(log.getUserId()), log.getQuantity()));
                         mInventoryLogDAO.update(item);
                         titlesMatch = true;
                         break;
