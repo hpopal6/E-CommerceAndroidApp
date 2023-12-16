@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private InventoryLogDAO mInventoryLogDAO;
     private List<InventoryLog> mInventoryLogs;
 
+    private List<Item> mItems;
+
     private int mUserId = -1;       // -1 if no user yet defined
     private SharedPreferences mPreferences = null;
     private User mUser;
@@ -88,6 +90,22 @@ public class MainActivity extends AppCompatActivity {
                 //log.setUserId(mUser.getUserId());
 
                 mInventoryLogDAO.insert(log);
+
+                Item newItem = new Item(log.getTitle(), log.getQuantity(), log.getUserId());
+                mItems = mInventoryLogDAO.getItemsByUserId(mUserId);
+                boolean titlesMatch = false;
+                for(Item item : mItems){
+                    if(item.getTitle().equals(log.getTitle())) {
+                        item.setQuantity(item.getQuantity() + log.getQuantity());
+                        mInventoryLogDAO.update(item);
+                        titlesMatch = true;
+                        break;
+                    }
+                }
+                if(!titlesMatch){
+                    mInventoryLogDAO.insert(newItem);
+                }
+                titlesMatch = false;
 
                 refreshDisplay();
             }
