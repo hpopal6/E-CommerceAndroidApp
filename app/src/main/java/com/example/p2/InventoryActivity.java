@@ -10,105 +10,123 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-
-import com.example.p2.LoginActivity;
-import com.example.p2.R;
-import com.example.p2.User;
+import com.example.p2.databinding.ActivityMainBinding;
 import com.example.p2.db.AppDatabase;
 import com.example.p2.db.InventoryLogDAO;
 
 import java.util.List;
 
-public class WelcomeActivity extends AppCompatActivity {
-
+public class InventoryActivity extends AppCompatActivity {
     private static final String USER_ID_KEY = "com.example.p2.userIdKey";
     private static final String PREFERENCES_KEY = "com.example.p2.PREFERENCES_KEY";
-    
-    private Button mSearchButton;
-    private Button mOrdersButton;
-    private Button mPostButton;
-    private Button mInventoryButton;
-    private Button mAdminButton;
+
+    private TextView mInventoryDisplay;
+    private EditText mTitle;
+    private EditText mPrice;
+    private EditText mQuantity;
+
+    private Button mExitInventoryButton;
+
+    private Button mRemoveItemButton;
 
     private InventoryLogDAO mInventoryLogDAO;
+    private List<InventoryLog> mInventoryLogs;
+    private List<Item> mItems;
+
     private int mUserId = -1;       // -1 if no user yet defined
     private SharedPreferences mPreferences = null;
     private User mUser;
+    private List<User> userList;
     private Menu mOptionsMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome);
+        setContentView(R.layout.activity_inventory);
 
         getDatabase();
         checkForUser();
         loginUser(mUserId);
-        wireupDisplay();
+        //setUpItems();
 
-        //loginUser(mUserId);
+        mInventoryDisplay = findViewById(R.id.inventoryUserDisplay);
+        mInventoryDisplay.setMovementMethod(new ScrollingMovementMethod());
+
+        mTitle = findViewById(R.id.editTextRemoveTitle);
+
+        mRemoveItemButton = findViewById(R.id.buttonRemoveItemButton);
+        mExitInventoryButton = findViewById(R.id.buttonExitInventory);
+
+        refreshDisplay();
+
+        mRemoveItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String title = getValuesFromDisplay();
+                boolean itemRemoved = false;
+                for(Item item:mItems){
+                    if(title.equals(item.getTitle()))
+                    {
+                        Toast.makeText(InventoryActivity.this,
+                                title + "is removed", Toast.LENGTH_SHORT).show();
+                        mInventoryLogDAO.delete(item);
+                        itemRemoved = true;
+                        break;
+                    }
+                }
+                if(!itemRemoved){
+                    Toast.makeText(InventoryActivity.this,
+                            title + "does not exist", Toast.LENGTH_SHORT).show();
+                }
+                refreshDisplay();
+            }
+        });
+
+        mExitInventoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = WelcomeActivity.intentFactory(getApplicationContext(), mUser.getUserId());
+                startActivity(intent);
+            }
+        });
     }
 
-    private void wireupDisplay() {
-        mSearchButton = findViewById(R.id.buttonSearch);
-        mOrdersButton = findViewById(R.id.buttonOrders);
-        mPostButton = findViewById(R.id.buttonPost);
-        mInventoryButton = findViewById(R.id.buttonInventory);
-        mAdminButton = findViewById(R.id.buttonAdmin);
-        
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                
+    /*private void setUpItems() {
+        mItems = mInventoryLogDAO.getAllItems();
+        mInventoryLogs = mInventoryLogDAO.getAllInventoryLogs();
+
+        boolean titlesMatch = false;
+        for(InventoryLog log : mInventoryLogs){
+            for(Item item : mItems){
+                if(item.getTitle().equals(log.getTitle())) {
+                    item.setQuantity(item.getQuantity() + log.getQuantity());
+                    mInventoryLogDAO.update(item);
+                    titlesMatch = true;
+                    break;
+                }
             }
-        });
-
-        mOrdersButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
+            if(!titlesMatch){
+                Item newItem = new Item(log.getTitle(), log.getQuantity());
+                mInventoryLogDAO.insert(newItem);
             }
-        });
-
-        mPostButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = MainActivity.intentFactory(getApplicationContext(), mUser.getUserId());
-                startActivity(intent);
-            }
-        });
-
-        mInventoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = InventoryActivity.intentFactory(getApplicationContext(), mUser.getUserId());
-                startActivity(intent);
-            }
-        });
-
-        if(mUser != null && mUser.isAdmin()){
-            mAdminButton.setVisibility(View.VISIBLE);
-        } else{
-            mAdminButton.setVisibility(View.GONE);
+            titlesMatch = false;
+            mItems = mInventoryLogDAO.getAllItems();
         }
 
-        mAdminButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = AdminActivity.intentFactory(getApplicationContext(), mUser.getUserId());
-                startActivity(intent);
+    }*/
 
-            }
-        });
-        
-    }
+
     private void loginUser(int userId) {
         //check if userID is valid
         mUser = mInventoryLogDAO.getUserByUserId(userId);
@@ -116,6 +134,7 @@ public class WelcomeActivity extends AppCompatActivity {
         addUserToPreference(userId);
         invalidateOptionsMenu();
     }
+
     private void checkForUser() {
         //do we have a user in the intent?
         mUserId = getIntent().getIntExtra(USER_ID_KEY, -1);
@@ -161,7 +180,32 @@ public class WelcomeActivity extends AppCompatActivity {
         editor.putInt(USER_ID_KEY, userId);
         editor.apply();
     }
+    private String getValuesFromDisplay(){
+        String title = "No record found";
 
+        title = mTitle.getText().toString();
+
+        return title;
+
+    }
+
+    private void refreshDisplay(){
+        mItems = mInventoryLogDAO.getItemsByUserId(mUserId);
+
+        if(mItems.size() <= 0){
+            mInventoryDisplay.setText(R.string.noLogsMessage);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for(Item item : mItems){
+            sb.append(item);
+            sb.append("\n");
+            sb.append("userId: " + mUserId + "\n");
+            sb.append("=-=-=-=-=-=-=-=-=-=-=");
+            sb.append("\n");
+        }
+        mInventoryDisplay.setText(sb.toString());
+    }
     private void logoutUser(){
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
@@ -218,7 +262,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 .getInventoryLogDAO();
     }
     public static Intent intentFactory(Context context, int userId){
-        Intent intent = new Intent(context, WelcomeActivity.class);
+        Intent intent = new Intent(context, InventoryActivity.class);
         intent.putExtra(USER_ID_KEY, userId);
         return intent;
     }

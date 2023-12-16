@@ -13,6 +13,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.example.p2.InventoryLog;
+import com.example.p2.Item;
 import com.example.p2.User;
 
 import org.checkerframework.checker.formatter.qual.InvalidFormat;
@@ -31,7 +32,7 @@ public interface InventoryLogDAO {
     @Delete
     void delete(InventoryLog inventoryLog);
 
-    @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " ORDER BY mDate DESC")
+    @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " ORDER BY mDate")
     List<InventoryLog> getAllInventoryLogs();
     @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " WHERE mLogID = :logId")
     List<InventoryLog> getInventoryLogsById(int logId);
@@ -56,4 +57,22 @@ public interface InventoryLogDAO {
 
     @Query("SELECT * FROM " + AppDatabase.USER_TABLE + " WHERE mUserId = :userId")
     User getUserByUserId(int userId);
+
+    @Insert
+    void insert(Item...items);
+
+    @Update
+    void update(Item...items);
+
+    @Delete
+    void delete(Item...items);
+
+    @Query("SELECT * FROM " + AppDatabase.ITEM_TABLE)
+    List<Item> getAllItems();
+
+    @Query("SELECT * FROM " + AppDatabase.ITEM_TABLE + " WHERE mTitle = :title")
+    Item getItemsByTitle(String title);
+
+    @Query("SELECT * FROM " + AppDatabase.ITEM_TABLE + " WHERE mUserId = :userId")
+    List<Item> getItemsByUserId(int userId);
 }
