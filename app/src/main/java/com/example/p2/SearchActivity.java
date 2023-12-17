@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,24 +20,24 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.p2.databinding.ActivityMainBinding;
 import com.example.p2.db.AppDatabase;
 import com.example.p2.db.InventoryLogDAO;
 
 import java.util.List;
 
-public class InventoryActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity {
+
     private static final String USER_ID_KEY = "com.example.p2.userIdKey";
     private static final String PREFERENCES_KEY = "com.example.p2.PREFERENCES_KEY";
 
-    private TextView mInventoryDisplay;
+    private TextView mSearchDisplay;
     private EditText mTitle;
     private EditText mPrice;
     private EditText mQuantity;
 
-    private Button mExitInventoryButton;
+    private Button mExitSearchButton;
 
-    private Button mRemoveItemButton;
+    private Button mBuyItemButton;
 
     private InventoryLogDAO mInventoryLogDAO;
     private List<InventoryLog> mInventoryLogs;
@@ -50,56 +49,73 @@ public class InventoryActivity extends AppCompatActivity {
     private List<User> userList;
     private Menu mOptionsMenu;
 
+    private String requestedTitle;
+    private int requestedQuantity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_inventory);
+        setContentView(R.layout.activity_search);
 
         getDatabase();
         checkForUser();
         loginUser(mUserId);
 
-        mInventoryDisplay = findViewById(R.id.inventoryUserDisplay);
-        mInventoryDisplay.setMovementMethod(new ScrollingMovementMethod());
+        mSearchDisplay = findViewById(R.id.searchUserDisplay);
+        mSearchDisplay.setMovementMethod(new ScrollingMovementMethod());
 
-        mTitle = findViewById(R.id.editTextRemoveTitle);
+        mTitle = findViewById(R.id.editTextBuyTitle);
+        mQuantity = findViewById(R.id.editTextBuyQuantity);
 
-        mRemoveItemButton = findViewById(R.id.buttonRemoveItemButton);
-        mExitInventoryButton = findViewById(R.id.buttonExitInventory);
+        mBuyItemButton = findViewById(R.id.buttonBuyItemButton);
+        mExitSearchButton = findViewById(R.id.buttonExitSearch);
 
         refreshDisplay();
 
-        mRemoveItemButton.setOnClickListener(new View.OnClickListener() {
+        mBuyItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String title = getValuesFromDisplay();
-                boolean itemRemoved = false;
-                for(Item item:mItems){
-                    if(title.equals(item.getTitle()))
-                    {
-                        Toast.makeText(InventoryActivity.this,
-                                title + "is removed", Toast.LENGTH_SHORT).show();
-                        mInventoryLogDAO.delete(item);
-                        itemRemoved = true;
-                        break;
-                    }
+                getValuesFromDisplay();
+                mItems = mInventoryLogDAO.getItemByTitle(requestedTitle);
+                int remainingRequestedQuantity = requestedQuantity;
+                int availableQuantity = 0;
+                //get total number of requested item (across multiple users)
+                for(Item item: mItems){
+                    availableQuantity += item.getQuantity();
                 }
-                if(!itemRemoved){
-                    Toast.makeText(InventoryActivity.this,
-                            title + "does not exist", Toast.LENGTH_SHORT).show();
+                //requested too many
+                if(requestedQuantity > availableQuantity){
+                    Toast.makeText(SearchActivity.this,
+                            "There is not enough " + requestedTitle
+                                    + " for your request, try again", Toast.LENGTH_LONG).show();
+                }
+                else if( requestedQuantity <= availableQuantity){
+                    for(Item item : mItems){
+                        if(item.getQuantity() < remainingRequestedQuantity){
+                            remainingRequestedQuantity -= item.getQuantity();
+                            mInventoryLogDAO.delete(item);
+                        }
+                        else if(item.getQuantity() > remainingRequestedQuantity){
+                            int newQuantity = item.getQuantity() - remainingRequestedQuantity;
+                            remainingRequestedQuantity = 0;
+                            item.setQuantity(newQuantity);
+                            mInventoryLogDAO.update(item);
+                            break;
+                        }
+                        else{
+                            mInventoryLogDAO.delete(item);
+                            remainingRequestedQuantity = 0;
+                            break;
+                        }
+                    }
                 }
                 refreshDisplay();
             }
         });
 
-        mExitInventoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = WelcomeActivity.intentFactory(getApplicationContext(), mUser.getUserId());
-                startActivity(intent);
-            }
-        });
+
     }
+
 
 
     private void loginUser(int userId) {
@@ -155,31 +171,27 @@ public class InventoryActivity extends AppCompatActivity {
         editor.putInt(USER_ID_KEY, userId);
         editor.apply();
     }
-    private String getValuesFromDisplay(){
-        String title = "No record found";
-
-        title = mTitle.getText().toString();
-
-        return title;
+    private void getValuesFromDisplay(){
+        requestedTitle = mTitle.getText().toString();
+        requestedQuantity = Integer.parseInt(mQuantity.getText().toString());
 
     }
 
     private void refreshDisplay(){
-        mItems = mInventoryLogDAO.getItemsByUserId(mUserId);
+        mItems = mInventoryLogDAO.getAllItems();
 
         if(mItems.size() <= 0){
-            mInventoryDisplay.setText(R.string.noLogsMessage);
+            mSearchDisplay.setText(R.string.noLogsMessage);
         }
 
         StringBuilder sb = new StringBuilder();
         for(Item item : mItems){
             sb.append(item);
             sb.append("\n");
-            sb.append("userId: " + mUserId + "\n");
             sb.append("=-=-=-=-=-=-=-=-=-=-=");
             sb.append("\n");
         }
-        mInventoryDisplay.setText(sb.toString());
+        mSearchDisplay.setText(sb.toString());
     }
     private void logoutUser(){
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
@@ -237,7 +249,7 @@ public class InventoryActivity extends AppCompatActivity {
                 .getInventoryLogDAO();
     }
     public static Intent intentFactory(Context context, int userId){
-        Intent intent = new Intent(context, InventoryActivity.class);
+        Intent intent = new Intent(context, SearchActivity.class);
         intent.putExtra(USER_ID_KEY, userId);
         return intent;
     }

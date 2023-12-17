@@ -3,6 +3,8 @@ package com.example.p2.db;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import java.util.HashMap;
+
 
 import com.example.p2.InventoryLog;
 import com.example.p2.Item;

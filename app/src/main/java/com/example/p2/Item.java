@@ -2,8 +2,11 @@ package com.example.p2;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverter;
 
 import com.example.p2.db.AppDatabase;
+
+import java.util.HashMap;
 
 @Entity(tableName = AppDatabase.ITEM_TABLE)
 public class Item {
@@ -14,14 +17,26 @@ public class Item {
     //private double mPrice;
     private int mQuantity;
 
+    //private HashMap<Integer, Integer> mUserList;
+
     private int mUserId;
 
     public Item(String mTitle, int mQuantity, int userId) {
         this.mTitle = mTitle;
         this.mQuantity = mQuantity;
-
         mUserId = userId;
+        //mUserList = new HashMap<Integer, Integer>();
+        //mUserList.put(userId,mQuantity);
     }
+
+
+    /*public HashMap<Integer, Integer> getUserList() {
+        return mUserList;
+    }
+
+    public void setUserList(HashMap<Integer, Integer> mUserList) {
+        this.mUserList = mUserList;
+    }*/
 
     public int getUserId() {
         return mUserId;

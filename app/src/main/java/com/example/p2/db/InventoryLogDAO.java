@@ -40,6 +40,9 @@ public interface InventoryLogDAO {
     @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " WHERE mUserID = :userId ORDER BY mDate DESC")
     List<InventoryLog> getInventoryLogsByUserId(int userId);
 
+    @Query("SELECT * FROM " + AppDatabase.INVENTORYLOG_TABLE + " WHERE mTitle = :title")
+    List<InventoryLog> getInventoryLogsByTitle(String title);
+
     @Insert
     void insert(User...users);
 
@@ -71,7 +74,7 @@ public interface InventoryLogDAO {
     List<Item> getAllItems();
 
     @Query("SELECT * FROM " + AppDatabase.ITEM_TABLE + " WHERE mTitle = :title")
-    Item getItemsByTitle(String title);
+    List<Item> getItemByTitle(String title);
 
     @Query("SELECT * FROM " + AppDatabase.ITEM_TABLE + " WHERE mUserId = :userId")
     List<Item> getItemsByUserId(int userId);
