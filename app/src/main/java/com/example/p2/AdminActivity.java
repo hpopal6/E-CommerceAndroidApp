@@ -33,6 +33,8 @@ public class AdminActivity extends AppCompatActivity {
 
     private InventoryLogDAO mInventoryLogDAO;
     private List<InventoryLog> mInventoryLogs;
+    private List<Item> mItems;
+    private List<ItemHolder> mItemHolders;
 
     private int mUserId = -1;       // -1 if no user yet defined
     private SharedPreferences mPreferences = null;
@@ -83,13 +85,24 @@ public class AdminActivity extends AppCompatActivity {
 
     private void clearAllItems(){
         mInventoryLogs = mInventoryLogDAO.getAllInventoryLogs();
-        if(mInventoryLogs.isEmpty()) {
+        mItems = mInventoryLogDAO.getAllItems();
+        mItemHolders = mInventoryLogDAO.getAllItemHolders();
+
+        if(mItems.isEmpty()) {
             Toast.makeText(AdminActivity.this, "No items exists already", Toast.LENGTH_SHORT).show();
         }else {
+            for(ItemHolder itemHolder : mItemHolders )
+            {
+                mInventoryLogDAO.delete(itemHolder);
+            }
+            for(Item item : mItems)
+            {
+                mInventoryLogDAO.delete(item);
+            }
             for(InventoryLog log : mInventoryLogs){
                 mInventoryLogDAO.delete(log);
             }
-            Toast.makeText(AdminActivity.this, "All items have been cleared", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AdminActivity.this, "All items and logs have been cleared", Toast.LENGTH_SHORT).show();
         }
     }
 

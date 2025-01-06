@@ -1,9 +1,11 @@
 package com.example.p2;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -27,6 +29,9 @@ public class CreateAccountActivity extends AppCompatActivity {
     private String mPassword;
     private String mConfirmPassword;
     private User mUser;
+
+    private int count = 0;
+    private int count2 = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +57,35 @@ public class CreateAccountActivity extends AppCompatActivity {
                 getValuesFromDisplay();
 
                 if(checkForUserAlreadyInDatabase()){
-                    Toast.makeText(CreateAccountActivity.this,
-                            "Username already taken, try again", Toast.LENGTH_SHORT).show();
+                    if(count < 3) {
+                        Toast.makeText(CreateAccountActivity.this,
+                                "Username already taken, try again", Toast.LENGTH_SHORT).show();
+                        count++;
+                    }
+                    else{
+                        count = 0;
+                        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(CreateAccountActivity.this);
+                        alertBuilder.setMessage("Login?");
+                        alertBuilder.setPositiveButton(getString(R.string.yes),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = LoginActivity.intentFactory(getApplicationContext());
+                                        startActivity(intent);
+                                    }
+                                });
+                        alertBuilder.setNegativeButton(getString(R.string.no),
+                                new DialogInterface.OnClickListener(){
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //Don't need anything here.
+                                    }
+                                });
+                        alertBuilder.create().show();
+
+                        //Toast.makeText(LoginActivity.this,
+                         //       "Timeout buddy!", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 else if (!userNameMeetsMinimumSize()) {
                     Toast.makeText(CreateAccountActivity.this,
@@ -64,13 +96,13 @@ public class CreateAccountActivity extends AppCompatActivity {
                             "Password needs to be at least 6 characters, try again", Toast.LENGTH_SHORT).show();
                 }
                 else if (!validatePasswords()) {
-                    Toast.makeText(CreateAccountActivity.this,
-                            "Passwords do not match, try again", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateAccountActivity.this,
+                                "Passwords do not match, try again", Toast.LENGTH_SHORT).show();
                 }
                 else {
                         addUserToDatabase(mUsername, mPassword);
-                        Intent intent = LoginActivity.intentFactory(getApplicationContext());
-                        startActivity(intent);
+                    Toast.makeText(CreateAccountActivity.this,
+                            mUsername + " user is created", Toast.LENGTH_SHORT).show();
                     }
                 }
         });

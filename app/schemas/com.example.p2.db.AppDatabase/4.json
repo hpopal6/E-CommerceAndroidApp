@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "697a5832f477a2f51fb1fa1350cb96c7",
+    "version": 4,
+    "identityHash": "5247e96083690de663cddc56dabcd613",
     "entities": [
       {
         "tableName": "INVENTORYLOG_TABLE",
@@ -129,12 +129,62 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "ITEMHOLDER_TABLE",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mItemHolderId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mItemId` INTEGER NOT NULL, `mTitle` TEXT, `mUserId` INTEGER NOT NULL, `mUsername` TEXT, `mQuantity` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "mItemHolderId",
+            "columnName": "mItemHolderId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mItemId",
+            "columnName": "mItemId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mTitle",
+            "columnName": "mTitle",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mUserId",
+            "columnName": "mUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mUsername",
+            "columnName": "mUsername",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mQuantity",
+            "columnName": "mQuantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "mItemHolderId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '697a5832f477a2f51fb1fa1350cb96c7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5247e96083690de663cddc56dabcd613')"
     ]
   }
 }

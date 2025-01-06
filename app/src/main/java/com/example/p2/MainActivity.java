@@ -89,24 +89,54 @@ public class MainActivity extends AppCompatActivity {
                 InventoryLog log = getValuesFromDisplay();
                 //log.setUserId(mUser.getUserId());
 
+                //Insert the new log
                 mInventoryLogDAO.insert(log);
 
-                mUser.getUserName();
+                //mUser.getUserName();
 
+                //Insert item and then insert or update ItemHolder
                 Item newItem = new Item(log.getTitle(), log.getQuantity(), log.getUserId());
                 mItems = mInventoryLogDAO.getAllItems();
                 boolean titlesMatch = false;
                 for(Item item : mItems){
-                    if(item.getTitle().equals(log.getTitle())) {
-                        item.setQuantity(item.getQuantity() + log.getQuantity());
-                        //item.setUserList(item.getUserList().put(Integer.valueOf(log.getUserId()), log.getQuantity()));
-                        mInventoryLogDAO.update(item);
+                    if(item.getTitle().equals(log.getTitle())) {    //if item already exists
+                        item.setQuantity(item.getQuantity() + log.getQuantity());   //update item's total quantity
+                        mInventoryLogDAO.update(item);      //update item
                         titlesMatch = true;
+                        //now search for existing itemHolders
+                        List<ItemHolder> itemHolders = mInventoryLogDAO.getItemHoldersByItemId(item.getItemId());
+                        boolean itemHoldersMatch = false;
+                        for(ItemHolder itemHolder : itemHolders){   //now search the item's itemHolders
+                            if(itemHolder.getUsername().equals(mUser.getUserName())) {  //if an itemHolder already exists
+                                itemHolder.setQuantity(itemHolder.getQuantity() + log.getQuantity());   //update the itemHolder's quantity
+                                mInventoryLogDAO.update(itemHolder);    //update itemHolder
+                                itemHoldersMatch = true;
+                                break;
+                            }
+                        }
+                        if(!itemHoldersMatch) {     //if no itemHolder exists, create an itemHolder
+                            ItemHolder itemHolder = new ItemHolder(mInventoryLogDAO.getItemByTitle(item.getTitle()).getItemId(),
+                                    item.getTitle(),
+                                    mUser.getUserId(),
+                                    //mInventoryLogDAO.getUserByUserId(log.getUserId()).getUserName(),
+                                    mUser.getUserName(),
+                                    log.getQuantity());
+                            mInventoryLogDAO.insert(itemHolder);
+                        }
+                        itemHoldersMatch = false;
                         break;
                     }
                 }
-                if(!titlesMatch){
+                if(!titlesMatch){   //if no item exist, create an item and itemHolder
                     mInventoryLogDAO.insert(newItem);
+                    ItemHolder itemHolder = new ItemHolder(mInventoryLogDAO.getItemByTitle(newItem.getTitle()).getItemId(),
+                            //newItem.getItemId(),
+                            newItem.getTitle(),
+                            mUser.getUserId(),
+                            //mInventoryLogDAO.getUserByUserId(log.getUserId()).getUserName(),
+                            mUser.getUserName(),
+                            log.getQuantity());
+                    mInventoryLogDAO.insert(itemHolder);    //TODO: Problem here
                 }
                 titlesMatch = false;
 

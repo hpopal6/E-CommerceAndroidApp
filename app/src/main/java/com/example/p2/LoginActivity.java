@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
     private boolean checkForUserInDatabase(){
         mUser = mInventoryLogDAO.getUserByUsername(mUsername);
         if(mUser == null){
-            Toast.makeText(this, "no user " + mUsername + " found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, mUsername + " does not exist", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;

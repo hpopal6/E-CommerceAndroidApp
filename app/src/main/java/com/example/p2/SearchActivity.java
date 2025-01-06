@@ -76,40 +76,69 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getValuesFromDisplay();
-                mItems = mInventoryLogDAO.getItemByTitle(requestedTitle);
+                //mItems = mInventoryLogDAO.getItemByTitle(requestedTitle);
                 int remainingRequestedQuantity = requestedQuantity;
-                int availableQuantity = 0;
+                Item requestedItem = (mInventoryLogDAO.getItemByTitle(requestedTitle));
+                int totalAvailableQuantity = requestedItem.getQuantity();
                 //get total number of requested item (across multiple users)
-                for(Item item: mItems){
+                /*for(Item item: mItems){
                     availableQuantity += item.getQuantity();
-                }
-                //requested too many
-                if(requestedQuantity > availableQuantity){
+                }*/
+
+                // if buyer requested too many of an item
+                if(requestedQuantity > totalAvailableQuantity){
                     Toast.makeText(SearchActivity.this,
                             "There is not enough " + requestedTitle
                                     + " for your request, try again", Toast.LENGTH_LONG).show();
                 }
-                else if( requestedQuantity <= availableQuantity){
-                    for(Item item : mItems){
-                        if(item.getQuantity() < remainingRequestedQuantity){
-                            remainingRequestedQuantity -= item.getQuantity();
-                            mInventoryLogDAO.delete(item);
-                        }
-                        else if(item.getQuantity() > remainingRequestedQuantity){
-                            int newQuantity = item.getQuantity() - remainingRequestedQuantity;
+                // if buyer requested less than (or equal to) what's available
+                else if (requestedQuantity <= totalAvailableQuantity){
+                    List<ItemHolder> itemHolders = mInventoryLogDAO.getItemHolderByTitle(requestedTitle);
+                    for(ItemHolder itemHolder : itemHolders){
+                        //if requested items to buy is less seller's inventory
+                        if(remainingRequestedQuantity < itemHolder.getQuantity() ){
+                            int newQuantity = itemHolder.getQuantity() - remainingRequestedQuantity;
                             remainingRequestedQuantity = 0;
-                            item.setQuantity(newQuantity);
-                            mInventoryLogDAO.update(item);
+                            itemHolder.setQuantity(newQuantity);
+                            mInventoryLogDAO.update(itemHolder);
                             break;
                         }
+                        //if requested items to buy is more than seller's inventory
+                        // reduced requested quantity, remove this itemHolder
+                        // and continue to the next itemHolder
+                        else if(remainingRequestedQuantity > itemHolder.getQuantity()){
+                            remainingRequestedQuantity -= itemHolder.getQuantity();
+                            mInventoryLogDAO.delete(itemHolder);
+                        }
+                        //else if requested items exactly matches seller's inventory
                         else{
-                            mInventoryLogDAO.delete(item);
                             remainingRequestedQuantity = 0;
+                            mInventoryLogDAO.delete(itemHolder);
                             break;
                         }
                     }
+                    // Update the requested item's quantity
+                    requestedItem.setQuantity(totalAvailableQuantity - requestedQuantity);
+                    mInventoryLogDAO.update(requestedItem);
+                }
+                // if requested items exactly matches all Inventorys'
+                // remove the item and its associated itemHolders
+                else{
+                    List<ItemHolder> itemHolders = mInventoryLogDAO.getItemHolderByTitle(requestedTitle);
+                    for(ItemHolder itemHolder : itemHolders) {
+                        mInventoryLogDAO.delete(itemHolder);
+                    }
+                    mInventoryLogDAO.delete(requestedItem);
                 }
                 refreshDisplay();
+            }
+        });
+
+        mExitSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = WelcomeActivity.intentFactory(getApplicationContext(), mUser.getUserId());
+                startActivity(intent);
             }
         });
 

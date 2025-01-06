@@ -14,6 +14,7 @@ import androidx.room.Update;
 
 import com.example.p2.InventoryLog;
 import com.example.p2.Item;
+import com.example.p2.ItemHolder;
 import com.example.p2.User;
 
 import org.checkerframework.checker.formatter.qual.InvalidFormat;
@@ -74,8 +75,32 @@ public interface InventoryLogDAO {
     List<Item> getAllItems();
 
     @Query("SELECT * FROM " + AppDatabase.ITEM_TABLE + " WHERE mTitle = :title")
-    List<Item> getItemByTitle(String title);
+    Item getItemByTitle(String title);
+    //List<Item> getItemByTitle(String title);
+
 
     @Query("SELECT * FROM " + AppDatabase.ITEM_TABLE + " WHERE mUserId = :userId")
     List<Item> getItemsByUserId(int userId);
+
+    @Insert
+    void insert(ItemHolder...itemHolders);
+
+    @Update
+    void update(ItemHolder...itemHolders);
+
+    @Delete
+    void delete(ItemHolder...itemHolders);
+
+    @Query("SELECT * FROM " + AppDatabase.ITEMHOLDER_TABLE)
+    List<ItemHolder> getAllItemHolders();
+
+    @Query("SELECT * FROM " + AppDatabase.ITEMHOLDER_TABLE + " WHERE mTitle = :title")
+    List<ItemHolder> getItemHolderByTitle(String title);
+
+    @Query("SELECT * FROM " + AppDatabase.ITEMHOLDER_TABLE + " WHERE mItemId = :itemId")
+    List<ItemHolder> getItemHoldersByItemId(int itemId);
+
+    @Query("SELECT * FROM " + AppDatabase.ITEMHOLDER_TABLE + " WHERE mItemHolderId = :itemHolderId")
+    ItemHolder getItemHolderByItemHolderId(int itemHolderId);
+
 }

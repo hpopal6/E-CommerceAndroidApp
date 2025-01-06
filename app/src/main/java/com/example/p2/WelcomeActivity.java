@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.p2.LoginActivity;
@@ -32,7 +33,6 @@ public class WelcomeActivity extends AppCompatActivity {
     private static final String PREFERENCES_KEY = "com.example.p2.PREFERENCES_KEY";
     
     private Button mSearchButton;
-    private Button mOrdersButton;
     private Button mPostButton;
     private Button mInventoryButton;
     private Button mAdminButton;
@@ -58,23 +58,18 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void wireupDisplay() {
         mSearchButton = findViewById(R.id.buttonSearch);
-        mOrdersButton = findViewById(R.id.buttonOrders);
         mPostButton = findViewById(R.id.buttonPost);
         mInventoryButton = findViewById(R.id.buttonInventory);
         mAdminButton = findViewById(R.id.buttonAdmin);
-        
+
+        Toast.makeText(WelcomeActivity.this, "Welcome " + mUser.getUserName(), Toast.LENGTH_SHORT).show();
+
+
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = SearchActivity.intentFactory(getApplicationContext(), mUser.getUserId());
                 startActivity(intent);
-            }
-        });
-
-        mOrdersButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
             }
         });
 
